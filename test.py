@@ -25,6 +25,7 @@ def fetch_loans(account_id):
     return response.json() if response.status_code == 200 else []
 
 # ✅ Calculate Loan Amortization
+# ✅ Calculate Loan Amortization (Fixed)
 def calculate_amortization(loan, interest_rate):
     balance = loan["amount"]
     monthly_payment = loan["monthly_payment"]
@@ -32,15 +33,26 @@ def calculate_amortization(loan, interest_rate):
 
     schedule = []
     date = datetime.today()
+    total_interest_paid = 0
+    total_principal_paid = 0
 
     while balance > 0:
         interest_paid = balance * rate
         principal_paid = monthly_payment - interest_paid
-        balance -= principal_paid
 
-        if balance < 0:  # Adjust last payment
-            principal_paid += balance
+        if principal_paid <= 0:  # Monthly payment too low
+            st.error(f"⚠️ Monthly payment for {loan['type']} is too low! Increase payment or reduce interest rate.")
+            break
+
+        if balance < principal_paid:  # Adjust last payment
+            principal_paid = balance
+            interest_paid = 0  # No interest on final payment
             balance = 0
+        else:
+            balance -= principal_paid
+
+        total_interest_paid += interest_paid
+        total_principal_paid += principal_paid
 
         schedule.append({
             "Date": date.strftime("%Y-%m"),
@@ -48,17 +60,20 @@ def calculate_amortization(loan, interest_rate):
             "Remaining Balance": balance,
             "Principal Paid": principal_paid,
             "Interest Paid": interest_paid,
+            "Total Principal Paid": total_principal_paid,
+            "Total Interest Paid": total_interest_paid,
+            "Principal %": (total_principal_paid / (total_principal_paid + total_interest_paid)) * 100 if (total_principal_paid + total_interest_paid) > 0 else 0,
+            "Interest %": (total_interest_paid / (total_principal_paid + total_interest_paid)) * 100 if (total_principal_paid + total_interest_paid) > 0 else 0,
         })
 
         date += timedelta(days=30)  # Move to next month
 
     return schedule
-
 # 🔹 UI: Title
 st.title("📊 Loan Visualization Dashboard")
 
-# 🔹 Account ID Input
-account_id = "67a7aa2f9683f20dd518bc18"
+# ✅ Fetch account ID from session
+account_id = st.session_state.get("account_id")
 
 if account_id:
     # Fetch account balance
@@ -115,37 +130,31 @@ if account_id:
     else:
         st.warning("⚠️ No loan data available for pie chart.")
 
+    # 📊 Principal vs. Interest Over Time
+    st.subheader("📊 Monthly Payment Breakdown Over Time")
+    if not df_schedule.empty:
+        fig_breakdown = px.area(
+            df_schedule, x="Date", y=["Principal %", "Interest %"],
+            color_discrete_map={"Principal %": "orange", "Interest %": "green"},
+            facet_row="Loan Type",
+            title="How Monthly Payments Change Over Time",
+            labels={"value": "Percentage (%)", "variable": "Payment Component"},
+        )
+        st.plotly_chart(fig_breakdown)
+    else:
+        st.warning("⚠️ No loan data available for payment breakdown.")
+
     # 📊 Loan Payoff Timeline
     st.subheader("📆 Loan Payoff Timeline")
     if not df_schedule.empty:
-        fig_timeline = px.line(
-            df_schedule, x="Date", y="Remaining Balance",
-            color="Loan Type",
-            title="When Will Loans Be Fully Paid Off?",
-            labels={"Date": "Month", "Remaining Balance": "Amount ($)"},
-            markers=True,
-            facet_row="Loan Type"
-        )
+        fig_timeline = px.line(df_schedule, x="Date", y="Remaining Balance", color="Loan Type", markers=True, facet_row="Loan Type")
         st.plotly_chart(fig_timeline)
     else:
         st.warning("⚠️ No loan data available for timeline.")
-
-    # 📊 Principal vs Interest Over Time
-    st.subheader("📊 Principal vs Interest Breakdown")
-    if not df_schedule.empty:
-        fig_stack = px.area(
-            df_schedule, x="Date", y=["Principal Paid", "Interest Paid"],
-            facet_row="Loan Type",
-            title="How Loan Payments Change Over Time",
-            labels={"value": "Amount ($)"},
-        )
-        st.plotly_chart(fig_stack)
-    else:
-        st.warning("⚠️ No loan data available for payment breakdown.")
 
     # 📋 Loan Details Table
     st.subheader("📋 Loan Details")
     st.dataframe(df_loans[["type", "amount", "monthly_payment", "credit_score", "status"]])
 
 else:
-    st.warning("Please enter your Account ID to fetch loan details!")
+    st.warning("⚠️ Please log in first!")
