@@ -26,11 +26,13 @@ def generate_loan_summary(total_loan, balance, fastest_loan_info):
     messages = [
         {"role": "system", "content": "You are a financial assistant specialized in loan analysis. Provide structured responses in bullet points."},
         {"role": "user", "content": f"""
-Summarize the customer's loan status in 3 bullet points:
+Summarize the customer's loan status in 3 bullet points and add a empty line after each point:
 
 1. Provide a one-line comment on their overall financial situation.
+        
 2. Compare the account balance with the total loan amount.
-
+        
+3. Suggest future plans in one sentence
 Customer Data:
 - **Total Loan Amount**: ${total_loan:,}
 - **Account Balance**: ${balance:,}

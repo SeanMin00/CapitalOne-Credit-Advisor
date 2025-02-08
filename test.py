@@ -23,7 +23,7 @@ st.markdown("""
         bottom: 20px;
         right: 20px;
         width: 320px;
-        height: 300px;  /* Increased height for a taller box */
+        height: 350px;  /* Increased height for a taller box */
         background-color: #333;  /* Dark background to match the overall theme */
         border: 2px solid #D10000;  /* Capital One Red border for a professional look */
         border-radius: 12px;  /* Rounded corners */
@@ -138,6 +138,7 @@ if customer_id:
         total_balance += fetch_balance(account["_id"])
         all_loans.extend(fetch_loans(account["_id"]))
 
+    
     # 🔹 User Adjustable Interest Rates
     interest_rates = {}
     with st.sidebar:
@@ -179,7 +180,7 @@ if customer_id:
 
     # 📊 Loan Breakdown Pie Chart
     df_loans = pd.DataFrame(all_loans)
-    st.subheader("📊 Loan Breakdown by Type")
+    st.subheader("🏦 Loan Breakdown by Type")
     if not df_loans.empty:
         fig_pie = px.pie(df_loans, names="type", values="amount", title="Loan Distribution")
         st.plotly_chart(fig_pie)
@@ -213,7 +214,7 @@ if customer_id:
     st.dataframe(df_loans[["type", "amount", "monthly_payment", "credit_score", "status"]])
 
     # ✅ Compute Loan Stats
-    total_loan = sum(loan["amount"] for loan in loans)
+    total_loan = sum(loan["amount"] for loan in all_loans)
     balance = 10000  # Placeholder balance
 
     # ✅ Find the fastest-finishing loan
@@ -223,7 +224,7 @@ if customer_id:
         loans_sorted = sorted(loans, key=lambda x: x["monthly_payment"] / x["amount"] if x["amount"] > 0 else float("inf"))
         return f"{loans_sorted[0]['type']} loan (fastest to be paid off)"
 
-    fastest_loan_info = get_fastest_loan(loans)
+    fastest_loan_info = get_fastest_loan(all_loans)
 
     
 
@@ -232,7 +233,7 @@ if customer_id:
         summary_container = st.empty()
 
         # Generate loan summary and update dynamically
-        for chunk in generate_loan_summary(total_loan, balance, fastest_loan_info):
+        for chunk in generate_loan_summary(total_loan, total_balance, fastest_loan_info):
             text_chunk = chunk.strip()  # Remove leading/trailing spaces
             if not streamed_text.endswith(" "):  # Ensure spaces between chunks
                 streamed_text += " "
@@ -249,27 +250,6 @@ if customer_id:
                 </div>
             </div>
             """, unsafe_allow_html=True)
-
-    # ✅ Compute Loan Stats
-    total_loan = sum(loan["amount"] for loan in loans)
-    balance = 10000  # Placeholder balance
-
-    # ✅ Find the fastest-finishing loan
-    def get_fastest_loan(loans):
-        if not loans:
-            return "No loans available"
-        loans_sorted = sorted(loans, key=lambda x: x["monthly_payment"] / x["amount"] if x["amount"] > 0 else float("inf"))
-        return f"{loans_sorted[0]['type']} loan (fastest to be paid off)"
-
-    fastest_loan_info = get_fastest_loan(loans)
-
-    # ✅ Capital One Loan Products Reference
-    capitalone_products = (
-        "Capital One Loan Products:\n"
-        "- **Product A**: Low interest rate, 36-month repayment.\n"
-        "- **Product B**: Flexible repayment options, credit improvement support.\n"
-        "- **Product C**: Fast approval, short-term loan."
-    )
 
 else:
     st.warning("⚠️ Please log in first!")
