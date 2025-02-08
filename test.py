@@ -1,65 +1,106 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from api_handler import create_customer, create_account, post_loans, fetch_loans, fetch_balance
+import requests
+import os
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
-# 🔹 고객 및 계좌 생성 (초기 설정)
+# 📌 Load API Key
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+BASE_URL = "http://api.nessieisreal.com"
+HEADERS = {"Content-Type": "application/json"}
+
+# ✅ Fetch Loans
+def fetch_loans(account_id):
+    url = f"{BASE_URL}/accounts/{account_id}/loans?key={API_KEY}"
+    response = requests.get(url, headers=HEADERS)
+    return response.json() if response.status_code == 200 else []
+
+# ✅ Calculate Loan Amortization
+def calculate_amortization(loan, interest_rate):
+    balance = loan["amount"]
+    monthly_payment = loan["monthly_payment"]
+    rate = interest_rate / 12  # Monthly interest rate
+
+    schedule = []
+    date = datetime.today()
+
+    while balance > 0:
+        interest_paid = balance * rate
+        principal_paid = monthly_payment - interest_paid
+        balance -= principal_paid
+
+        if balance < 0:  # Adjust last payment
+            principal_paid += balance
+            balance = 0
+
+        schedule.append({
+            "Date": date.strftime("%Y-%m"),
+            "Loan Type": loan["type"],
+            "Remaining Balance": balance,
+            "Principal Paid": principal_paid,
+            "Interest Paid": interest_paid,
+        })
+
+        date += timedelta(days=30)  # Move to next month
+
+    return schedule
+
+# 🔹 UI: Title
 st.title("📊 Loan Visualization Dashboard")
-if "customer_id" not in st.session_state:
-    customer_id = create_customer()
-    account_id = create_account(customer_id)
-    st.session_state["customer_id"] = customer_id
-    st.session_state["account_id"] = account_id
-    post_loans(account_id)
 
-account_id = st.session_state["account_id"]
+# 🔹 Account ID Input
+account_id = st.text_input("Enter your Account ID:", "")
 
-# 🔹 데이터 가져오기
-loans = fetch_loans(account_id)
-balance = fetch_balance(account_id)
+if account_id:
+    loans = fetch_loans(account_id)
 
-# 🔹 대출 데이터가 있을 경우 분석
-if loans:
-    df = pd.DataFrame(loans)
-
-    # 📌 총 대출 금액
-    total_loan = df["amount"].sum()
-
-    # 📌 평균 이자율 (고정 이자율 5% 적용)
-    interest_rate = 0.05  # 5% 가정
-
-    # 📌 월 납입액
-    total_monthly_payment = df["monthly_payment"].sum()
-
-    # 📌 남은 개월 수 계산 (이자 포함)
-    def calculate_remaining_months(amount, monthly_payment, rate):
-        if monthly_payment == 0 or rate == 0:
-            return "N/A"
-        r = rate / 12  # 월 이자율
-        months = (amount * r) / (monthly_payment - (amount * r))
-        return round(months) if months > 0 else "N/A"
-
-    remaining_months = calculate_remaining_months(total_loan, total_monthly_payment, interest_rate)
-
-    # 🔹 왼쪽 상단 대출 개요
+    # 🔹 User Adjustable Interest Rates
+    interest_rates = {}
     with st.sidebar:
-        st.header("Loan Overview")
-        st.metric("📦 총 대출 금액", f"${total_loan:,}")
-        st.metric("📅 월 납입액", f"${total_monthly_payment:,}")
-        st.metric("💰 이자율 (가정)", f"{interest_rate * 100:.2f}%")
-        st.metric("⏳ 남은 개월 수", f"{remaining_months} months")
+        st.header("Adjust Interest Rates")
+        for loan in loans:
+            interest_rates[loan["_id"]] = st.slider(
+                f"{loan['type'].capitalize()} Loan Interest Rate (%)",
+                min_value=0.0, max_value=20.0, value=5.0, step=0.1
+            ) / 100  # Convert to decimal
 
-        st.header("Account Balance")
-        st.metric("💵 현재 계좌 잔액", f"${balance:,}")
-        st.metric("📆 이번 달 예상 납입액", f"${total_monthly_payment:,}")
+    # 📌 Process Loans
+    payoff_schedules = []
+    for loan in loans:
+        if loan["_id"] in interest_rates:
+            schedule = calculate_amortization(loan, interest_rates[loan["_id"]])
+            payoff_schedules.extend(schedule)
 
-    # 🔹 대출 유형별 파이 차트
-    fig = px.pie(df, names="type", values="amount", title="Loan Breakdown by Type")
-    st.plotly_chart(fig)
+    df_schedule = pd.DataFrame(payoff_schedules)
 
-    # 🔹 대출 상세 테이블
-    st.header("📋 Loan Details")
-    st.dataframe(df[["type", "amount", "monthly_payment", "credit_score", "status"]])
+    # 📊 Loan Payoff Timeline (Separate Graphs)
+    st.subheader("📆 Loan Payoff Timeline")
+    fig_timeline = px.line(
+        df_schedule, x="Date", y="Remaining Balance",
+        color="Loan Type",
+        title="When Will Loans Be Fully Paid Off?",
+        labels={"Date": "Month", "Remaining Balance": "Amount ($)"},
+        markers=True,
+        facet_row="Loan Type"  # Creates separate charts for each loan type
+    )
+    st.plotly_chart(fig_timeline)
+
+    # 📊 Principal vs Interest Over Time (Separate Graphs)
+    st.subheader("📊 Principal vs Interest Breakdown")
+    fig_stack = px.area(
+        df_schedule, x="Date", y=["Principal Paid", "Interest Paid"],
+        facet_row="Loan Type",  # Creates separate plots
+        title="How Loan Payments Change Over Time",
+        labels={"value": "Amount ($)"}
+    )
+    st.plotly_chart(fig_stack)
+
+    # 📋 Loan Details Table
+    st.subheader("📋 Loan Details")
+    st.dataframe(pd.DataFrame(loans)[["type", "amount", "monthly_payment", "credit_score", "status"]])
 
 else:
-    st.warning("⚠️ No loan data available!")
+    st.warning("Please enter your Account ID to fetch loan details!")
