@@ -5,9 +5,13 @@ import requests
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+import openai
+from loan_assistant import generate_loan_summary 
+
 
 # 📌 Load API Key
 load_dotenv()
+
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
@@ -101,6 +105,45 @@ if account_id:
     # 📋 Loan Details Table
     st.subheader("📋 Loan Details")
     st.dataframe(pd.DataFrame(loans)[["type", "amount", "monthly_payment", "credit_score", "status"]])
+
+    # ✅ Compute Loan Stats
+    total_loan = sum(loan["amount"] for loan in loans)
+    balance = 10000  # Placeholder balance
+
+    # ✅ Find the fastest-finishing loan
+    def get_fastest_loan(loans):
+        if not loans:
+            return "No loans available"
+        loans_sorted = sorted(loans, key=lambda x: x["monthly_payment"] / x["amount"] if x["amount"] > 0 else float("inf"))
+        return f"{loans_sorted[0]['type']} loan (fastest to be paid off)"
+
+    fastest_loan_info = get_fastest_loan(loans)
+
+    # ✅ Capital One Loan Products Reference
+    capitalone_products = (
+        "Capital One Loan Products:\n"
+        "- **Product A**: Low interest rate, 36-month repayment.\n"
+        "- **Product B**: Flexible repayment options, credit improvement support.\n"
+        "- **Product C**: Fast approval, short-term loan."
+    )
+
+    # -------------------------------
+    # 🔹 Display Loan Summary with Streaming
+    # -------------------------------
+    st.subheader("🔹 Loan Summary")
+
+    with st.spinner("Generating loan summary..."):
+        streamed_text = ""
+        summary_container = st.empty()
+
+        for chunk in generate_loan_summary(total_loan, balance, fastest_loan_info, capitalone_products):
+            text_chunk = chunk.strip()  # Remove leading/trailing spaces
+            if not streamed_text.endswith(" "):  # Ensure spaces between chunks
+                streamed_text += " "
+            streamed_text += text_chunk
+            summary_container.markdown(f"**{streamed_text}**", unsafe_allow_html=True)
+
+
 
 else:
     st.warning("Please enter your Account ID to fetch loan details!")
