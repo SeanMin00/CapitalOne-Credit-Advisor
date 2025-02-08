@@ -16,6 +16,45 @@ API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
 
+st.markdown("""
+    <style>
+    .loan-summary-box {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        height: 300px;  /* Increased height for a taller box */
+        background-color: #333;  /* Dark background to match the overall theme */
+        border: 2px solid #D10000;  /* Capital One Red border for a professional look */
+        border-radius: 12px;  /* Rounded corners */
+        padding: 20px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow for floating effect */
+        z-index: 1000;
+        color: white;  /* White text for contrast */
+    }
+
+    .loan-summary-header {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: #4A90E2;  /* Light blue for the header */
+    }
+
+    .loan-summary-content {
+        font-size: 14px;
+        color: #E4E4E4;  /* Lighter text color for content */
+        line-height: 1.6;
+        max-height: 200px;
+        overflow-y: auto; /* Allows scrolling if the content is too long */
+    }
+
+    .loan-summary-box a {
+        color: #4A90E2;  /* Link color for any potential links */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # ✅ Fetch Account Balance
 def fetch_balance(account_id):
     url = f"{BASE_URL}/accounts/{account_id}?key={API_KEY}"
@@ -173,31 +212,30 @@ if account_id:
 
     fastest_loan_info = get_fastest_loan(loans)
 
-    # ✅ Capital One Loan Products Reference
-    capitalone_products = (
-        "Capital One Loan Products:\n"
-        "- **Product A**: Low interest rate, 36-month repayment.\n"
-        "- **Product B**: Flexible repayment options, credit improvement support.\n"
-        "- **Product C**: Fast approval, short-term loan."
-    )
-
-    # -------------------------------
-    # 🔹 Display Loan Summary with Streaming
-    # -------------------------------
-    st.subheader("🔹 Loan Summary")
+    
 
     with st.spinner("Generating loan summary..."):
         streamed_text = ""
         summary_container = st.empty()
 
-        for chunk in generate_loan_summary(total_loan, balance, fastest_loan_info, capitalone_products):
+        # Generate loan summary and update dynamically
+        for chunk in generate_loan_summary(total_loan, balance, fastest_loan_info):
             text_chunk = chunk.strip()  # Remove leading/trailing spaces
             if not streamed_text.endswith(" "):  # Ensure spaces between chunks
                 streamed_text += " "
             streamed_text += text_chunk
-            summary_container.markdown(f"**{streamed_text}**", unsafe_allow_html=True)
-
-
+            
+            # Dynamically update the content inside the loan summary box
+            summary_container.markdown(f"""
+            <div class="loan-summary-box">
+                <div class="loan-summary-header">
+                    Loan Summary
+                </div>
+                <div class="loan-summary-content">
+                    **{streamed_text}**
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     # ✅ Compute Loan Stats
     total_loan = sum(loan["amount"] for loan in loans)
@@ -219,24 +257,6 @@ if account_id:
         "- **Product B**: Flexible repayment options, credit improvement support.\n"
         "- **Product C**: Fast approval, short-term loan."
     )
-
-    # -------------------------------
-    # 🔹 Display Loan Summary with Streaming
-    # -------------------------------
-    st.subheader("🔹 Loan Summary")
-
-    with st.spinner("Generating loan summary..."):
-        streamed_text = ""
-        summary_container = st.empty()
-
-        for chunk in generate_loan_summary(total_loan, balance, fastest_loan_info, capitalone_products):
-            text_chunk = chunk.strip()  # Remove leading/trailing spaces
-            if not streamed_text.endswith(" "):  # Ensure spaces between chunks
-                streamed_text += " "
-            streamed_text += text_chunk
-            summary_container.markdown(f"**{streamed_text}**", unsafe_allow_html=True)
-
-
 
 else:
     st.warning("⚠️ Please log in first!")

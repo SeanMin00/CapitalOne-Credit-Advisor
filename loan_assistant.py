@@ -11,7 +11,7 @@ if not openai.api_key:
 # ✅ Initialize OpenAI Client
 client = openai.Client(api_key=openai.api_key)
 
-def generate_loan_summary(total_loan, balance, fastest_loan_info, capitalone_products):
+def generate_loan_summary(total_loan, balance, fastest_loan_info):
     """
     Generates a 3-bullet-point loan summary using OpenAI API (streaming).
     
@@ -19,7 +19,6 @@ def generate_loan_summary(total_loan, balance, fastest_loan_info, capitalone_pro
         total_loan (float): Total loan amount.
         balance (float): Account balance.
         fastest_loan_info (str): Information about the fastest-finishing loan.
-        capitalone_products (str): Available Capital One loan products.
 
     Returns:
         Generator[str]: Streaming response from OpenAI (chunked).
@@ -31,15 +30,12 @@ Summarize the customer's loan status in 3 bullet points:
 
 1. Provide a one-line comment on their overall financial situation.
 2. Compare the account balance with the total loan amount.
-3. Identify the loan that will be paid off first and recommend a suitable Capital One loan product.
 
 Customer Data:
 - **Total Loan Amount**: ${total_loan:,}
 - **Account Balance**: ${balance:,}
 - **Fastest Finishing Loan**: {fastest_loan_info}
 
-Available Capital One Loan Products:
-{capitalone_products}
 """}
     ]
 
