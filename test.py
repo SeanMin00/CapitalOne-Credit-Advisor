@@ -52,7 +52,7 @@ def calculate_amortization(loan, interest_rate):
 st.title("📊 Loan Visualization Dashboard")
 
 # 🔹 Account ID Input
-account_id = st.text_input("Enter your Account ID:", "")
+account_id = "67a7aa2f9683f20dd518bc18"
 
 if account_id:
     loans = fetch_loans(account_id)
