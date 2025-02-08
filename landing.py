@@ -10,18 +10,11 @@ API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
 
-# ✅ Fetch Customer Account ID
-def fetch_account_id(customer_id):
-    url = f"{BASE_URL}/customers/{customer_id}/accounts?key={API_KEY}"
-    response = requests.get(url, headers=HEADERS)
-    
-    if response.status_code == 200 and response.json():
-        return response.json()[0]["_id"]  # Get first account ID
-    return None
+CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a7e5fb9683f20dd518bdea"]
 
 # ✅ Check Credentials (Replace with secure authentication)
 def check_credentials(username, password):
-    return username == "u" and password == "p"
+    return username in CUSTOMER_ID and password == "p"
 
 # ✅ Initialize session state
 if "logged_in" not in st.session_state:
@@ -33,27 +26,26 @@ if not st.session_state["logged_in"]:
     st.title("Login")
 
     username = st.text_input("Capital One ID")
-    password = st.text_input("Password", type="password")
+    password = st.text_input("Password", type="password", value = "p")
+    aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
+    openAIKey = st.text_input("OpenAI API Key", placeholder = aiText)
 
     if st.button("Login"):
         if check_credentials(username, password):
             st.session_state["logged_in"] = True
             st.success("Logged in successfully!")
 
-            # Fetch the Account ID dynamically
-            CUSTOMER_ID = "67a7aa2f9683f20dd518bc17"  # Predefined for now
-            account_id = fetch_account_id(CUSTOMER_ID)
-
-            if account_id:
-                st.session_state["account_id"] = account_id
-                st.rerun()  # Reload to transition to dashboard
-            else:
-                st.error("Could not fetch account ID. Contact support.")
+            # Store IDs in session state
+            st.session_state["customer_id"] = username
+            if openAIKey:
+                st.session_state["openAI_key"] = openAIKey
+            # Reload to transition to dashboard
+            st.rerun() 
         else:
             st.error("Invalid username or password")
 
-# ✅ Load Dashboard after login
-if st.session_state.get("logged_in") and "account_id" in st.session_state:
+# Load Dashboard after login
+if st.session_state.get("logged_in"):
     with open("test.py", encoding="utf-8") as f:
         code = f.read()
         exec(code)

@@ -36,7 +36,13 @@ def get_loans():
     loans = fetch_data(f"/accounts/{ACCOUNT_ID}/loans")
     print(json.dumps(loans, indent=4))
 
+def get_bills():
+    print("\n📌 청구서 목록 조회")
+    bills = fetch_data(f"/accounts/{ACCOUNT_ID}/bills")
+    print(json.dumps(bills, indent=4))
+
 if __name__ == "__main__":
-    get_customer_info()
-    get_account_info()
-    get_loans()
+    # get_customer_info()
+    # get_account_info()
+    # get_loans()
+    get_bills()
