@@ -1,51 +1,42 @@
 import streamlit as st
 import pandas as pd
-import requests
-import os
-from dotenv import load_dotenv
-
-# 📌 Load API Key
-load_dotenv()
-API_KEY = os.getenv("API_KEY")
-BASE_URL = "http://api.nessieisreal.com"
-HEADERS = {"Content-Type": "application/json"}
+import math
 
 CUSTOMER_ID = "67a7aa2f9683f20dd518bc17"
 
-# ✅ Check Credentials (Replace with secure authentication)
-def check_credentials(username, password):
+# Function to check credentials
+def id_is_valid(username, password):
     return username == CUSTOMER_ID and password == "p"
 
-# ✅ Initialize session state
+# Initialize session state
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# 🔹 Login Form
+# Login form
 if not st.session_state["logged_in"]:
-    st.image("logo.svg", width=800)
-    st.title("Login")
+    # Capital One Logo
+    st.image("logo.svg", width=1000)
 
+    # Login Section
+    st.title("Login")
     username = st.text_input("Capital One ID", value = CUSTOMER_ID)
+    # username.placeholder = CUSTOMER_ID
     password = st.text_input("Password", type="password", value = "p")
     aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
     openAIKey = st.text_input("OpenAI API Key", placeholder = aiText)
-
     if st.button("Login"):
-        if check_credentials(username, password):
+        if id_is_valid(username, password):
             st.session_state["logged_in"] = True
             st.success("Logged in successfully!")
-
-            # Store IDs in session state
-            st.session_state["customer_id"] = username
-            if openAIKey:
-                st.session_state["openAI_key"] = openAIKey
-            # Reload to transition to dashboard
-            st.rerun() 
+            
+            # Clear login page
+            st.rerun()
         else:
             st.error("Invalid username or password")
-
-# Load Dashboard after login
-if st.session_state.get("logged_in"):
+else:
+    # Log In Successful   
+    # Execute test.py to show the dashboard
+    # st.login()
     with open("test.py", encoding="utf-8") as f:
         code = f.read()
         exec(code)
