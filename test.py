@@ -12,6 +12,12 @@ API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
 
+# ✅ Fetch Account Balance
+def fetch_balance(account_id):
+    url = f"{BASE_URL}/accounts/{account_id}?key={API_KEY}"
+    response = requests.get(url, headers=HEADERS)
+    return response.json().get("balance", 0) if response.status_code == 200 else 0
+
 # ✅ Fetch Loans
 def fetch_loans(account_id):
     url = f"{BASE_URL}/accounts/{account_id}/loans?key={API_KEY}"
@@ -55,6 +61,10 @@ st.title("📊 Loan Visualization Dashboard")
 account_id = "67a7aa2f9683f20dd518bc18"
 
 if account_id:
+    # Fetch account balance
+    balance = fetch_balance(account_id)
+    
+    # Fetch loans
     loans = fetch_loans(account_id)
 
     # 🔹 User Adjustable Interest Rates
@@ -69,38 +79,73 @@ if account_id:
 
     # 📌 Process Loans
     payoff_schedules = []
+    total_monthly_payment = 0
     for loan in loans:
         if loan["_id"] in interest_rates:
             schedule = calculate_amortization(loan, interest_rates[loan["_id"]])
             payoff_schedules.extend(schedule)
+            total_monthly_payment += loan["monthly_payment"]
 
     df_schedule = pd.DataFrame(payoff_schedules)
+    total_loan_amount = sum(loan["amount"] for loan in loans)
 
-    # 📊 Loan Payoff Timeline (Separate Graphs)
+    # 📌 Debt-Free Date Calculation
+    latest_payment_date = df_schedule[df_schedule["Remaining Balance"] == 0]["Date"].max()
+    debt_free_date = datetime.strptime(latest_payment_date, "%Y-%m") if latest_payment_date else None
+    months_left = (debt_free_date - datetime.today()).days // 30 if debt_free_date else "N/A"
+
+    # ✅ Sidebar Overview
+    with st.sidebar:
+        st.header("Loan Overview")
+        st.metric("📦 Total Loan Amount", f"${total_loan_amount:,}")
+        st.metric("📅 Monthly Payment", f"${total_monthly_payment:,}")
+        
+        # 🔹 Balance Warning / Success
+        balance_color = "green" if balance >= total_monthly_payment else "red"
+        st.markdown(f"### 💵 Account Balance: <span style='color:{balance_color}; font-weight:bold;'>${balance:,}</span>", unsafe_allow_html=True)
+
+        st.metric("⏳ Time Until Debt-Free", f"{months_left} months" if months_left != "N/A" else "N/A")
+
+    # 📊 Loan Breakdown Pie Chart
+    df_loans = pd.DataFrame(loans)
+    st.subheader("📊 Loan Breakdown by Type")
+    if not df_loans.empty:
+        fig_pie = px.pie(df_loans, names="type", values="amount", title="Loan Distribution")
+        st.plotly_chart(fig_pie)
+    else:
+        st.warning("⚠️ No loan data available for pie chart.")
+
+    # 📊 Loan Payoff Timeline
     st.subheader("📆 Loan Payoff Timeline")
-    fig_timeline = px.line(
-        df_schedule, x="Date", y="Remaining Balance",
-        color="Loan Type",
-        title="When Will Loans Be Fully Paid Off?",
-        labels={"Date": "Month", "Remaining Balance": "Amount ($)"},
-        markers=True,
-        facet_row="Loan Type"  # Creates separate charts for each loan type
-    )
-    st.plotly_chart(fig_timeline)
+    if not df_schedule.empty:
+        fig_timeline = px.line(
+            df_schedule, x="Date", y="Remaining Balance",
+            color="Loan Type",
+            title="When Will Loans Be Fully Paid Off?",
+            labels={"Date": "Month", "Remaining Balance": "Amount ($)"},
+            markers=True,
+            facet_row="Loan Type"
+        )
+        st.plotly_chart(fig_timeline)
+    else:
+        st.warning("⚠️ No loan data available for timeline.")
 
-    # 📊 Principal vs Interest Over Time (Separate Graphs)
+    # 📊 Principal vs Interest Over Time
     st.subheader("📊 Principal vs Interest Breakdown")
-    fig_stack = px.area(
-        df_schedule, x="Date", y=["Principal Paid", "Interest Paid"],
-        facet_row="Loan Type",  # Creates separate plots
-        title="How Loan Payments Change Over Time",
-        labels={"value": "Amount ($)"}
-    )
-    st.plotly_chart(fig_stack)
+    if not df_schedule.empty:
+        fig_stack = px.area(
+            df_schedule, x="Date", y=["Principal Paid", "Interest Paid"],
+            facet_row="Loan Type",
+            title="How Loan Payments Change Over Time",
+            labels={"value": "Amount ($)"},
+        )
+        st.plotly_chart(fig_stack)
+    else:
+        st.warning("⚠️ No loan data available for payment breakdown.")
 
     # 📋 Loan Details Table
     st.subheader("📋 Loan Details")
-    st.dataframe(pd.DataFrame(loans)[["type", "amount", "monthly_payment", "credit_score", "status"]])
+    st.dataframe(df_loans[["type", "amount", "monthly_payment", "credit_score", "status"]])
 
 else:
     st.warning("Please enter your Account ID to fetch loan details!")
