@@ -9,7 +9,7 @@ load_dotenv()
 API_KEY = "ad96e72d43ad9c0a3e39125921b15882"
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
-CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a84cb69683f20dd518be90","56c66be5a73e492741507293","5e47855e322fa016762f38e2"]
+CUSTOMER_ID = ["67a8b7d59683f20dd518bea4", "67a8b7d59683f20dd518bea8","67a8b7d49683f20dd518bea0", "67a84cb69683f20dd518be90", "67a7e5fb9683f20dd518bdea"]
 
 # Check Credentials (Replace with secure authentication)
 def check_credentials(username, password):
@@ -42,12 +42,12 @@ if not st.session_state["logged_in"]:
         unsafe_allow_html=True
     )
 
-    username = st.text_input("Capital One ID (customer_id)", value = CUSTOMER_ID[0])
+    # ✅ User selects ID from dropdown
+    username = st.selectbox("Select Your Capital One ID", options=CUSTOMER_ID)
+
     password = st.text_input("Password", type="password", value = "********")
     aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
     openAIKey = st.text_input("OpenAI API Key", placeholder=aiText)
-
-    
 
     if st.button("Sign in"):
         if check_credentials(username, password):
@@ -64,12 +64,12 @@ if not st.session_state["logged_in"]:
         else:
             st.error("Invalid username or password")
 
+    # st.text("")
     
-    
-    # 🔹 Display Available Customer IDs Below the Sign-In Button
-    st.markdown("##### Other Available Customer IDs to login (Password is all the same):")
-    for customer in CUSTOMER_ID:
-        st.write(f"- `{customer}`")
+    # # 🔹 Display Available Customer IDs Below the Sign-In Button
+    # st.markdown("##### Available Customer IDs to login (Password is same):")
+    # for customer in CUSTOMER_ID:
+    #     st.write(f"- `{customer}`")
 
     
     
