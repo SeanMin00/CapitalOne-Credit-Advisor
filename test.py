@@ -23,7 +23,7 @@ st.markdown("""
         bottom: 20px;
         right: 20px;
         width: 320px;
-        height: 350px;  /* Increased height for a taller box */
+        height: 320px;  /* Increased height for a taller box */
         background-color: #333;  /* Dark background to match the overall theme */
         border: 2px solid #D10000;  /* Capital One Red border for a professional look */
         border-radius: 12px;  /* Rounded corners */
