@@ -54,11 +54,33 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ✅ Fetch Customer Info (Name + Accounts)
+def fetch_customer_info(customer_id):
+    url = f"{BASE_URL}/customers/{customer_id}?key={API_KEY}"
+    response = requests.get(url, headers=HEADERS)
+
+    if response.status_code == 200:
+        data = response.json()
+        first_name = data.get("first_name", "Unknown")
+        last_name = data.get("last_name", "User")
+        full_name = f"{first_name} {last_name}"
+        
+        # Fetch all accounts linked to this customer
+        accounts_url = f"{BASE_URL}/customers/{customer_id}/accounts?key={API_KEY}"
+        acc_response = requests.get(accounts_url, headers=HEADERS)
+
+        if acc_response.status_code == 200 and acc_response.json():
+            return full_name, acc_response.json()  # Return name + all accounts
+
+    return "Unknown User", []
+
+
 # ✅ Fetch Accounts for a Customer
 def fetch_accounts(customer_id):
     url = f"{BASE_URL}/customers/{customer_id}/accounts?key={API_KEY}"
     response = requests.get(url, headers=HEADERS)
     return response.json() if response.status_code == 200 else []
+
 
 # ✅ Fetch Account Balance
 def fetch_balance(account_id):
@@ -117,9 +139,6 @@ def calculate_amortization(loan, interest_rate):
 
     return schedule
 
-# 🔹 UI: Title
-st.title("📊 Loan Visualization Dashboard")
-
 # ✅ Fetch customer ID from session
 customer_id = st.session_state.get("customer_id")
 
@@ -129,6 +148,14 @@ if customer_id:
 
     if not accounts:
         st.warning("⚠️ No accounts found for this customer.")
+        st.stop()
+
+    customer_id = st.session_state.get("customer_id")
+    if customer_id:
+        customer_name, accounts = fetch_customer_info(customer_id)
+        st.title(f"👋 Welcome, {customer_name}!")
+    else:
+        st.warning("⚠️ Please log in first!")
         st.stop()
 
     # Fetch balances and loans for all accounts
