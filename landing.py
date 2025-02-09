@@ -9,7 +9,7 @@ load_dotenv()
 API_KEY = "ad96e72d43ad9c0a3e39125921b15882"
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
-CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a7e5fb9683f20dd518bdea"]
+CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a84cb69683f20dd518be90","56c66be5a73e492741507293","5e47855e322fa016762f38e2"]
 
 # Check Credentials (Replace with secure authentication)
 def check_credentials(username, password):
@@ -42,7 +42,7 @@ if not st.session_state["logged_in"]:
         unsafe_allow_html=True
     )
 
-    username = st.text_input("Capital One ID", value = CUSTOMER_ID[0])
+    username = st.text_input("Capital One ID (customer_id)", value = CUSTOMER_ID[0])
     password = st.text_input("Password", type="password", value = "********")
     aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
     openAIKey = st.text_input("OpenAI API Key", placeholder=aiText)
@@ -63,6 +63,17 @@ if not st.session_state["logged_in"]:
             st.rerun() 
         else:
             st.error("Invalid username or password")
+
+    
+    
+    # 🔹 Display Available Customer IDs Below the Sign-In Button
+    st.markdown("##### Other Available Customer IDs to login (Password is all the same):")
+    for customer in CUSTOMER_ID:
+        st.write(f"- `{customer}`")
+
+    
+    
+
 
 def get_openAI_key():
     return openAIKey
