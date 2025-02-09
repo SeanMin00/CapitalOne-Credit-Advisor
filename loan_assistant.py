@@ -5,14 +5,15 @@ from dotenv import load_dotenv
 
 # ✅ Load environment variables (API keys)
 load_dotenv()
-# openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.api_key = st.session_state.get("openAI_key")
 
+# ✅ If API key is missing, show a warning but do not stop execution
 if not openai.api_key:
-    raise ValueError("OPENAI_API_KEY is not set. Please set it in your .env file.")
-
-# ✅ Initialize OpenAI Client
-client = openai.Client(api_key=openai.api_key)
+    st.warning("⚠️ OpenAI API key is not set. AI-based analysis will be disabled.")
+    api_available = False
+else:
+    api_available = True
+    client = openai.Client(api_key=openai.api_key)
 
 def generate_loan_summary(total_loan, balance, fastest_loan_info):
     """
@@ -24,23 +25,26 @@ def generate_loan_summary(total_loan, balance, fastest_loan_info):
         fastest_loan_info (str): Information about the fastest-finishing loan.
 
     Returns:
-        Generator[str]: Streaming response from OpenAI (chunked).
+        Generator[str]: Streaming response from OpenAI (chunked), or None if API key is missing.
     """
+    if not api_available:
+        return ["⚠️ AI-based loan summary is disabled due to missing API key."]
+
     messages = [
         {"role": "system", "content": "You are a financial assistant specialized in loan analysis. Provide structured responses in bullet points."},
         {"role": "user", "content": f"""
-Summarize the customer's loan status in 3 bullet points and add a empty line after each point:
+Summarize the customer's loan status in 3 bullet points and add an empty line after each point:
 
 1. Provide a one-line comment on their overall financial situation.
         
 2. Compare the account balance with the total loan amount.
         
-3. Suggest future plans in one sentence
+3. Suggest future plans in one sentence.
+
 Customer Data:
 - **Total Loan Amount**: ${total_loan:,}
 - **Account Balance**: ${balance:,}
 - **Fastest Finishing Loan**: {fastest_loan_info}
-
 """}
     ]
 
