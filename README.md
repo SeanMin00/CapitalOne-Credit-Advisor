@@ -1,6 +1,6 @@
 # CapitalOne-Credit-Advisor
 
-### How to run it on your own machine
+## How to run it on your own machine
 
 1. Install the requirements
 
@@ -43,7 +43,7 @@ Creating an interactive, user-friendly experience
 - The importance of clear, user-friendly data visualization  
 - Handling real-time API interactions and dynamic UI updates  
 
-# What’s Next for CapitalOne Loan Advisor  
+## 🏃What’s Next for CapitalOne Loan Advisor  
 - Expanding loan product recommendations with deeper analytics  
 - Integrating predictive financial modeling for better forecasting  
 - Enhancing user customization for financial planning  
