@@ -46,7 +46,7 @@ if not st.session_state["logged_in"]:
     username = st.selectbox("Select Your Capital One ID", options=CUSTOMER_ID)
 
     password = st.text_input("Password", type="password", value = "********")
-    aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
+    aiText = "Financial Advisor Chatbot is available without OpenAI API Key only during the hackathon"
     openAIKey = st.text_input("OpenAI API Key", placeholder=aiText)
 
     if st.button("Sign in"):
