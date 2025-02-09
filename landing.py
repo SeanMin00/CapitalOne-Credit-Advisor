@@ -18,13 +18,6 @@ CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a7e5fb9683f20dd518bdea"]
 def check_credentials(username, password):
     return username in CUSTOMER_ID and password == "p"
 
-# ✅ Update .env file with OpenAI Key
-def update_openai_key(new_key):
-    with open(".env", "a") as env_file:
-        env_file.write(f"OPENAI_API_KEY={new_key}\n")
-    # Reload the .env file so the new key is available in the session
-    load_dotenv()
-
 
 # ✅ Initialize session state
 if "logged_in" not in st.session_state:
@@ -49,8 +42,7 @@ if not st.session_state["logged_in"]:
             st.session_state["customer_id"] = username
             if openAIKey:
                 st.session_state["openAI_key"] = openAIKey
-                update_openai_key(openAIKey)  # Update the .env file with the OpenAI key
-            # Reload to transition to dashboard
+                
             st.rerun() 
         else:
             st.error("Invalid username or password")
