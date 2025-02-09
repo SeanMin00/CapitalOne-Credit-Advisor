@@ -23,14 +23,14 @@ st.markdown("""
         bottom: 20px;
         right: 20px;
         width: 320px;
-        height: 320px;  /* Increased height for a taller box */
-        background-color: #333;  /* Dark background to match the overall theme */
-        border: 2px solid #D10000;  /* Capital One Red border for a professional look */
-        border-radius: 12px;  /* Rounded corners */
+        height: 325px; 
+        background-color: #333; 
+        border: 2px solid #D10000;  
+        border-radius: 12px; 
         padding: 20px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow for floating effect */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         z-index: 1000;
-        color: white;  /* White text for contrast */
+        color: white;  
     }
 
     .loan-summary-header {
@@ -248,7 +248,7 @@ if customer_id:
             summary_container.markdown(f"""
             <div class="loan-summary-box">
                 <div class="loan-summary-header">
-                    Loan Summary
+                    Loan Summary (OpenAI)
                 </div>
                 <div class="loan-summary-content">
                     **{streamed_text}**
