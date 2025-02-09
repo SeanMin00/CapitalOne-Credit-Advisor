@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # 📌 Load API Key
 load_dotenv()
-API_KEY = os.getenv("API_KEY")
+API_KEY = "ad96e72d43ad9c0a3e39125921b15882"
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
 
