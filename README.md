@@ -1,4 +1,4 @@
-# CapitalOne-Credit-Advisor
+# 🏦 CapitalOne-Credit-Advisor
 
 ## How to run it on your own machine
 
@@ -14,9 +14,13 @@
    $ streamlit run test.py
    ```
 
+[![Watch the Demo](https://img.[youtube.com/vi/dQw4w9WgXcQ/0](https://www.youtube.com/watch?v=AfjgRk_1ScE).jpg)]([https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://www.youtube.com/watch?v=AfjgRk_1ScE))
+
+
+
 ### ✅ Inspiration: Managing loans can be complex, with fluctuating interest rates, multiple repayment schedules, and financial uncertainties. We wanted to create an AI-powered loan advisor that provides clear, actionable insights to help users take control of their financial future.
 
-## 🏦 CapitalOne Loan Advisor analyzes loan data in real-time, offering:  
+## 💸 CapitalOne Loan Advisor analyzes loan data in real-time, offering:  
 1. AI-generated loan summaries with key financial insights  
 2. Interactive loan payoff timelines and breakdown charts  
 3. Adjustable interest rate simulations for better planning  
