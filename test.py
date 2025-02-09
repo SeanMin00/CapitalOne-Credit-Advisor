@@ -168,17 +168,22 @@ if customer_id:
 
     # ✅ Sidebar Overview
     with st.sidebar:
+        balance_color = "green" if total_balance >= total_monthly_payment else "red"
+        st.markdown(f"""
+            <div style='text-align: left;'>
+                <div style='font-size: 16px; font-weight: 600; color: white;'>💵 Total Account Balance</div>
+                <div style='font-size: 36px; font-weight: bold; color:{balance_color};'>
+                    ${total_balance:,}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
         st.header("Loan Overview")
         st.metric("📦 Total Loan Amount", f"${total_loan_amount:,}")
         st.metric("📅 Monthly Payment", f"${total_monthly_payment:,}")
-        
-        # 🔹 Balance Warning / Success
-        balance_color = "green" if total_balance >= total_monthly_payment else "red"
-        st.markdown(f"### 💵 Total Account Balance: <span style='color:{balance_color}; font-weight:bold;'>${total_balance:,}</span>", unsafe_allow_html=True)
+
+        # 🔹 Balance Warning / Success (숫자만 색상 변경)
 
         st.metric("⏳ Time Until Debt-Free", f"{months_left} months" if months_left != "N/A" else "N/A")
-
-    # 📊 Loan Breakdown Pie Chart
     df_loans = pd.DataFrame(all_loans)
     st.subheader("🏦 Loan Breakdown by Type")
     if not df_loans.empty:
