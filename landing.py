@@ -57,8 +57,6 @@ if not st.session_state["logged_in"]:
             if openAIKey:
                 st.session_state["openAI_key"] = openAIKey
                 
-                
-                
             # Reload to transition to the dashboard
             st.rerun() 
         else:
