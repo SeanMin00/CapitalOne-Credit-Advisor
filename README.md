@@ -14,8 +14,7 @@
    $ streamlit run test.py
    ```
 
-[![Watch the Demo](https://img.youtube.com/vi/AfjgRk_1ScE/0.jpg)](https://www.youtube.com/watch?v=AfjgRk_1ScE)
-
+## 🖥️ DEMO
 
 https://github.com/user-attachments/assets/203dfa58-25fe-4e9e-a9ec-92bc457e0033
 
