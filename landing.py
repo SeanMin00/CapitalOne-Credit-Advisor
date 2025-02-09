@@ -42,7 +42,7 @@ if not st.session_state["logged_in"]:
     )
 
     username = st.text_input("Capital One ID")
-    password = st.text_input("Password", type="password", value="p")
+    password = st.text_input("Password", type="password")
     aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
     openAIKey = st.text_input("OpenAI API Key", placeholder=aiText)
 
