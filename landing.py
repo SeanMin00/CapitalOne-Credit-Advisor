@@ -43,26 +43,38 @@ if not st.session_state["logged_in"]:
     )
 
     username = st.text_input("Capital One ID")
-    password = st.text_input("Password", type="password", value = "p")
+    password = st.text_input("Password", type="password", value="p")
     aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
-    openAIKey = st.text_input("OpenAI API Key", placeholder = aiText)
+    openAIKey = st.text_input("OpenAI API Key", placeholder=aiText)
 
     if st.button("Sign in"):
         if check_credentials(username, password):
             st.session_state["logged_in"] = True
             st.success("Logged in successfully!")
 
-            # Store IDs in session state
+            # Store IDs and OpenAI API key in session state
             st.session_state["customer_id"] = username
             if openAIKey:
                 st.session_state["openAI_key"] = openAIKey
                 
+                
+                
+            # Reload to transition to the dashboard
             st.rerun() 
         else:
             st.error("Invalid username or password")
 
+def get_openAI_key():
+    return openAIKey
+
 # Load Dashboard after login
 if st.session_state.get("logged_in"):
+
+    openai_key = st.session_state.get("openAI_key")
+
+    import loan_assistant
+    
     with open("test.py", encoding="utf-8") as f:
         code = f.read()
         exec(code)
+
