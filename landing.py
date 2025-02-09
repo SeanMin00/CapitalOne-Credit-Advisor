@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 
 # 📌 Load API Key
 load_dotenv()
-API_KEY = "ad96e72d43ad9c0a3e39125921b15882"
+API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
 CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a7e5fb9683f20dd518bdea"]
 
 # Check Credentials (Replace with secure authentication)
 def check_credentials(username, password):
-    return username in CUSTOMER_ID and password == "p"
+    return username in CUSTOMER_ID and (len(password) > 6)
 
 # Initialize session state
 if "logged_in" not in st.session_state:
@@ -43,7 +43,7 @@ if not st.session_state["logged_in"]:
     )
 
     username = st.text_input("Capital One ID")
-    password = st.text_input("Password", type="password", value="p")
+    password = st.text_input("Password", type="password")
     aiText = "Optional: You can enable the Financial Advisor Chatbot with your OpenAI API Key"
     openAIKey = st.text_input("OpenAI API Key", placeholder=aiText)
 
