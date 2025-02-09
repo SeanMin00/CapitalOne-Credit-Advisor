@@ -14,8 +14,7 @@
    $ streamlit run test.py
    ```
 
-[![Watch the Demo](https://img.(https://www.youtube.com/watch?v=AfjgRk_1ScE).jpg)](https://www.youtube.com/watch?v=AfjgRk_1ScE)
-
+[![Watch the Demo](https://img.youtube.com/vi/AfjgRk_1ScE/0.jpg)](https://www.youtube.com/watch?v=AfjgRk_1ScE)
 
 
 ### ✅ Inspiration: Managing loans can be complex, with fluctuating interest rates, multiple repayment schedules, and financial uncertainties. We wanted to create an AI-powered loan advisor that provides clear, actionable insights to help users take control of their financial future.
