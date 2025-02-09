@@ -13,7 +13,7 @@ CUSTOMER_ID = ["67a7aa2f9683f20dd518bc17", "67a7e5fb9683f20dd518bdea"]
 
 # Check Credentials (Replace with secure authentication)
 def check_credentials(username, password):
-    return username in CUSTOMER_ID and password == "p"
+    return username in CUSTOMER_ID and (len(password) > 6)
 
 # Initialize session state
 if "logged_in" not in st.session_state:
