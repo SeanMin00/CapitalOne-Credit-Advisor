@@ -17,6 +17,11 @@
 [![Watch the Demo](https://img.youtube.com/vi/AfjgRk_1ScE/0.jpg)](https://www.youtube.com/watch?v=AfjgRk_1ScE)
 
 
+https://github.com/user-attachments/assets/203dfa58-25fe-4e9e-a9ec-92bc457e0033
+
+
+
+
 ### ✅ Inspiration: 
 #### Managing loans can be complex, with fluctuating interest rates, multiple repayment schedules, and financial uncertainties. We wanted to create an AI-powered loan advisor that provides clear, actionable insights to help users take control of their financial future.
 
