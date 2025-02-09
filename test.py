@@ -12,7 +12,7 @@ from loan_assistant import generate_loan_summary
 # 📌 Load API Key
 load_dotenv()
 
-API_KEY = "ad96e72d43ad9c0a3e39125921b15882"
+API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.nessieisreal.com"
 HEADERS = {"Content-Type": "application/json"}
 
