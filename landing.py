@@ -32,7 +32,7 @@ if not st.session_state["logged_in"]:
         .centered-title {
             text-align: center;
             font-family: 'FrutigerBlackItalic';
-            color: rgb(210, 46, 30);
+            color: #FFFFFF;
         }
         </style>
         <div class="centered-title">
